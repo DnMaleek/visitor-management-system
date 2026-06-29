@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Visitors — VisitorPass</title>
+  <title>Today's Visitors — VisitorPass</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/style.css">
@@ -16,13 +16,13 @@
 
     <div class="page-body">
       <div class="page-header">
-        <h1>My Visitors</h1>
-        <p>All visitors assigned to you</p>
+        <h1>Today's Visitors</h1>
+        <p>View all visitors recorded or expected today</p>
       </div>
 
       <div class="section-header">
-        <span class="section-title">Visitor history</span>
-        <span id="visitorCount" class="section-count">0</span>
+        <span class="section-title">All visitors today</span>
+        <span id="todayCount" class="section-count">0</span>
       </div>
 
       <div id="list" class="space-y"></div>
@@ -34,7 +34,7 @@
   <script src="../../assets/js/visitors.js"></script>
   <script>
     setupLayout();
-    loadHostVisitors();
+    loadTodayVisitors();
   </script>
 </body>
 </html>

@@ -6,7 +6,6 @@
   <title>Register Visitor — VisitorPass</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body>
@@ -34,12 +33,10 @@
               <input id="phone" class="input" placeholder="e.g. +254 700 000 000">
             </div>
             <div class="form-group">
-              <label class="form-label">Department ID</label>
-              <input id="department" class="input" placeholder="Department ID">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Host ID</label>
-              <input id="host" class="input" placeholder="Host ID">
+              <label class="form-label">Host</label>
+              <select id="host" class="input" style="cursor:pointer;">
+                <option value="">Loading hosts…</option>
+              </select>
             </div>
             <div class="form-group">
               <label class="form-label">Purpose of visit</label>
@@ -58,6 +55,9 @@
   <script src="../../assets/js/api.js"></script>
   <script src="../../assets/js/layout.js"></script>
   <script src="../../assets/js/visitors.js"></script>
-  <script>setupLayout();</script>
+  <script>
+    setupLayout();
+    loadHostOptions();
+  </script>
 </body>
 </html>

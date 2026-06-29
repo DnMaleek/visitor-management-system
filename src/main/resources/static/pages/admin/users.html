@@ -6,7 +6,6 @@
   <title>Users — VisitorPass</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="/assets/css/style.css">
 </head>
 <body>
@@ -21,43 +20,85 @@
         <p>Manage system accounts and role assignments</p>
       </div>
 
-      <div class="two-col">
-        <!-- Create form -->
-        <div class="card">
-          <div class="card-title">Add new user</div>
-          <div class="form-group">
-            <label class="form-label">Username</label>
-            <input id="uname" class="input" placeholder="e.g. john.doe">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Full name</label>
-            <input id="fullname" class="input" placeholder="e.g. John Doe">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Email</label>
-            <input id="email" class="input" type="email" placeholder="e.g. john@company.com">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Role</label>
-            <select id="role" class="input">
-              <option value="ADMIN">Admin</option>
-              <option value="HOST">Host</option>
-              <option value="SECURITY_GUARD">Security Guard</option>
-            </select>
-          </div>
-          <button onclick="createUser()" class="btn btn-primary" style="width:100%;margin-top:4px;">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:15px;height:15px;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
-            Create User
-          </button>
-        </div>
-
-        <!-- User list -->
-        <div>
-          <div class="section-header">
+      <!-- User list (full width) -->
+      <div>
+        <div class="table-controls">
+          <div class="section-header" style="margin:0; border:none; padding:0;">
             <span class="section-title">All users</span>
             <span id="userCount" class="section-count">0</span>
           </div>
-          <div id="users" class="space-y"></div>
+          <div class="search-bar">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+            <input type="text" id="searchInput" placeholder="Search users..." oninput="handleSearch()">
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="users"></tbody>
+          </table>
+          <div class="pagination">
+            <div class="page-info" id="pageInfo">Showing 0 records</div>
+            <div class="page-buttons">
+              <button class="page-btn" id="prevBtn" onclick="prevPage()">Previous</button>
+              <button class="page-btn" id="nextBtn" onclick="nextPage()">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Action Button -->
+      <button class="fab" onclick="openUserModal()" title="Add New User">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+      </button>
+
+      <!-- Modal for Add User -->
+      <div id="userModal" class="modal-overlay">
+        <div class="modal-content">
+          <div class="modal-header">
+            <div class="modal-title">Add new user</div>
+            <button class="modal-close" onclick="closeUserModal()">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label class="form-label">Username</label>
+              <input id="uname" class="input" placeholder="e.g. john.doe">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Full name</label>
+              <input id="fullname" class="input" placeholder="e.g. John Doe">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email</label>
+              <input id="email" class="input" type="email" placeholder="e.g. john@company.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Role</label>
+              <select id="role" class="input">
+                <option value="ADMIN">Admin</option>
+                <option value="HOST">Host</option>
+                <option value="SECURITY_GUARD">Security Guard</option>
+              </select>
+            </div>
+            <button onclick="createUser()" class="btn btn-primary" style="width:100%;margin-top:16px;">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:15px;height:15px;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+              Create User
+            </button>
+          </div>
         </div>
       </div>
     </div>

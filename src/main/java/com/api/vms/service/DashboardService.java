@@ -15,13 +15,12 @@ public class DashboardService {
     }
 
     public DashboardResponse getStats() {
-
         return new DashboardResponse(
                 visitorRepo.count(),
                 visitorRepo.countByStatus(VisitorStatus.PENDING),
                 visitorRepo.countByStatus(VisitorStatus.APPROVED),
-                visitorRepo.countByStatus(VisitorStatus.CHECKED_IN),
-                visitorRepo.countByStatus(VisitorStatus.CHECKED_OUT)
+                visitorRepo.countByIsCheckedInTrueAndIsCheckedOutFalse(),
+                visitorRepo.countByIsCheckedOutTrue()
         );
     }
 }

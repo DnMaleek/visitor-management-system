@@ -4,5 +4,5 @@ async function loadDashboard() {
     document.getElementById("total").innerText = data.totalVisitors;
     document.getElementById("pending").innerText = data.pendingVisitors;
     document.getElementById("approved").innerText = data.approvedVisitors;
-    document.getElementById("checked").innerText = data.checkedVisitors;
+    document.getElementById("checked").innerText = data.checkedInVisitors;
 }

@@ -15,8 +15,5 @@ public class VisitorRequest {
     public String purpose;
 
     @NotNull
-    public Long departmentId;
-
-    @NotNull
     public Long hostId;
 }

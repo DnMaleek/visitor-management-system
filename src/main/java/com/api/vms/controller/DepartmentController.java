@@ -34,4 +34,10 @@ public class DepartmentController {
     public ApiResponse delete(@PathVariable Long id) {
         return service.delete(id);
     }
+
+    // UPDATE
+    @PutMapping("/{id}")
+    public ApiResponse update(@PathVariable Long id, @RequestBody Department department) {
+        return service.update(id, department);
+    }
 }

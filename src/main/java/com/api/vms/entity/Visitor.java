@@ -30,6 +30,10 @@ public class Visitor {
 
     private LocalDateTime checkOutTime;
 
+    private boolean isCheckedIn = false;
+
+    private boolean isCheckedOut = false;
+
     // Visitor belongs to a department
     @ManyToOne
     @JoinColumn(name = "department_id")

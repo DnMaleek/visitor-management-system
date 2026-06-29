@@ -5,6 +5,7 @@ import com.api.vms.dto.VisitorRequest;
 import com.api.vms.service.VisitorService;
 import jakarta.validation.Valid;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,9 +21,10 @@ public class VisitorController {
     @PostMapping
     @PreAuthorize("hasRole('SECURITY_GUARD')")
     public ApiResponse registerVisitor(
-            @Valid @RequestBody VisitorRequest request
+            @Valid @RequestBody VisitorRequest request,
+            Authentication authentication
     ) {
-        return service.registerVisitor(request);
+        return service.registerVisitor(request, authentication.getName());
     }
 
     @PutMapping("/{id}/approve")
@@ -67,12 +69,30 @@ public class VisitorController {
         return service.getVisitorsByHost(hostId);
     }
 
+    @GetMapping("/my")
+    @PreAuthorize("hasAnyRole('HOST','ADMIN')")
+    public ApiResponse getMyVisitors(Authentication authentication) {
+        return service.getMyVisitors(authentication.getName());
+    }
+
     @GetMapping("/status/{status}")
-    @PreAuthorize("hasAnyRole('ADMIN','HOST')")
+    @PreAuthorize("hasAnyRole('ADMIN','HOST','SECURITY_GUARD')")
     public ApiResponse getByStatus(
             @PathVariable String status
     ) {
         return service.getVisitorsByStatus(status);
+    }
+
+    @GetMapping("/unchecked-in")
+    @PreAuthorize("hasAnyRole('ADMIN','SECURITY_GUARD')")
+    public ApiResponse getUncheckedIn() {
+        return service.getUncheckedInVisitors();
+    }
+
+    @GetMapping("/checked-in")
+    @PreAuthorize("hasAnyRole('ADMIN','SECURITY_GUARD')")
+    public ApiResponse getCheckedIn() {
+        return service.getCheckedInVisitors();
     }
 
     @GetMapping("/today")
@@ -97,4 +117,16 @@ public class VisitorController {
         );
     }
 
+
+    @GetMapping("/all")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse getAllVisitors() {
+        return service.getAllVisitorsFlat();
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ApiResponse deleteVisitor(@PathVariable Long id) {
+        return service.deleteVisitor(id);
+    }
 }

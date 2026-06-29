@@ -2,7 +2,7 @@ async function login() {
     const username = document.getElementById("name").value;
     const password = document.getElementById("password").value;
 
-    const result = await api("auth/login", "POST", {name:username, password:password});
+    const result = await apiRaw("/auth/login", "POST", {name:username, password:password});
 
     if(result.success) {
         localStorage.setItem("token", result.data.token);

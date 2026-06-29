@@ -36,20 +36,10 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/auth/**",
                                 "/",
-                                "/index.html",
-                                "/styles.css",
-                                "/app.js",
-                                "/favicon.ico",
-                                "/**/*.js",
-                                "/**/*.css",
-                                "/**/*.png",
-                                "/**/*.svg",
-                                "/**/*.ico"
+                                "/**"
                         ).permitAll()
-                        .anyRequest()
-                        .authenticated()
+                        .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults());
 

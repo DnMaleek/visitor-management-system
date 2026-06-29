@@ -2,12 +2,10 @@ package com.api.vms.service;
 
 import com.api.vms.dto.ApiResponse;
 import com.api.vms.dto.VisitorRequest;
-import com.api.vms.entity.Department;
 import com.api.vms.entity.User;
 import com.api.vms.entity.Visitor;
 import com.api.vms.entity.enums.VisitorStatus;
 import com.api.vms.exception.ResourceNotFoundException;
-import com.api.vms.repository.DepartmentRepository;
 import com.api.vms.repository.UserRepository;
 import com.api.vms.repository.VisitorRepository;
 import org.springframework.data.domain.PageRequest;
@@ -20,34 +18,38 @@ import java.time.LocalDateTime;
 public class VisitorService {
 
     private final VisitorRepository visitorRepo;
-    private final DepartmentRepository departmentRepo;
     private final UserRepository userRepo;
 
     public VisitorService(
             VisitorRepository visitorRepo,
-            DepartmentRepository departmentRepo,
             UserRepository userRepo
     ) {
         this.visitorRepo = visitorRepo;
-        this.departmentRepo = departmentRepo;
         this.userRepo = userRepo;
     }
 
-    public ApiResponse registerVisitor(VisitorRequest req) {
-
-        Department department = departmentRepo.findById(req.departmentId)
-                .orElseThrow(() -> new ResourceNotFoundException("Department not found"));
+    public ApiResponse registerVisitor(VisitorRequest req, String recorderUsername) {
 
         User host = userRepo.findById(req.hostId)
                 .orElseThrow(() -> new ResourceNotFoundException("Host not found"));
+
+        User recorder = userRepo.findByName(recorderUsername)
+                .orElseThrow(() -> new ResourceNotFoundException("Recorder not found"));
 
         Visitor visitor = new Visitor();
         visitor.setFullName(req.fullName);
         visitor.setPhoneNumber(req.phoneNumber);
         visitor.setPurpose(req.purpose);
-        visitor.setDepartment(department);
         visitor.setHost(host);
         visitor.setStatus(VisitorStatus.PENDING);
+
+        // Auto-populate department from the selected host
+        if (host.getDepartment() != null) {
+            visitor.setDepartment(host.getDepartment());
+        }
+
+        // Record who registered this visitor
+        visitor.setRecordedBy(recorder);
 
         Visitor saved = visitorRepo.save(visitor);
 
@@ -95,11 +97,11 @@ public class VisitorService {
         Visitor visitor = visitorRepo.findById(visitorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Visitor not found"));
 
-        if (visitor.getStatus() != VisitorStatus.APPROVED) {
-            throw new ResourceNotFoundException("Visitor is not approved");
+        if (visitor.getStatus() != VisitorStatus.APPROVED && visitor.getStatus() != VisitorStatus.PENDING) {
+            throw new ResourceNotFoundException("Visitor is not approved or pending");
         }
 
-        visitor.setStatus(VisitorStatus.CHECKED_IN);
+        visitor.setCheckedIn(true);
         visitor.setCheckInTime(LocalDateTime.now());
 
         visitorRepo.save(visitor);
@@ -116,11 +118,11 @@ public class VisitorService {
         Visitor visitor = visitorRepo.findById(visitorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Visitor not found"));
 
-        if (visitor.getStatus() != VisitorStatus.CHECKED_IN) {
-            throw new ResourceNotFoundException("Visitor has not checked in");
+        if (!visitor.isCheckedIn() || visitor.isCheckedOut()) {
+            throw new ResourceNotFoundException("Visitor is not checked in or already checked out");
         }
 
-        visitor.setStatus(VisitorStatus.CHECKED_OUT);
+        visitor.setCheckedOut(true);
         visitor.setCheckOutTime(LocalDateTime.now());
 
         visitorRepo.save(visitor);
@@ -152,6 +154,22 @@ public class VisitorService {
         );
     }
 
+    public ApiResponse getUncheckedInVisitors() {
+        return new ApiResponse(
+                true,
+                "Unchecked-in visitors fetched",
+                visitorRepo.findByCheckInTimeIsNull()
+        );
+    }
+
+    public ApiResponse getCheckedInVisitors() {
+        return new ApiResponse(
+                true,
+                "Checked-in visitors",
+                visitorRepo.findByIsCheckedInTrueAndIsCheckedOutFalse()
+        );
+    }
+
     public ApiResponse getVisitorsByHost(
             Long hostId
     ) {
@@ -160,6 +178,16 @@ public class VisitorService {
                 true,
                 "Visitors fetched",
                 visitorRepo.findByHostId(hostId)
+        );
+    }
+
+    public ApiResponse getMyVisitors(String username) {
+        User host = userRepo.findByName(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Host not found"));
+        return new ApiResponse(
+                true,
+                "My visitors fetched successfully",
+                visitorRepo.findByHostId(host.getId())
         );
     }
 
@@ -206,5 +234,20 @@ public class VisitorService {
                         PageRequest.of(page, size)
                 )
         );
+    }
+
+    public ApiResponse getAllVisitorsFlat() {
+        return new ApiResponse(
+                true,
+                "All visitors fetched",
+                visitorRepo.findAll()
+        );
+    }
+
+    public ApiResponse deleteVisitor(Long id) {
+        Visitor visitor = visitorRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Visitor not found"));
+        visitorRepo.delete(visitor);
+        return new ApiResponse(true, "Visitor deleted successfully", null);
     }
 }

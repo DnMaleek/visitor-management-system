@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visitors — VisitorPass</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+  <div id="sidebar"></div>
+
+  <div class="main-wrap">
+    <div id="navbar"></div>
+
+    <div class="page-body">
+      <div class="page-header">
+        <h1>Visitors</h1>
+        <p>All visitor records across the organisation</p>
+      </div>
+      <div>
+        <div class="table-controls">
+          <div class="section-header" style="margin:0; border:none; padding:0;">
+            <span class="section-title">All visitors</span>
+            <span id="visitorCount" class="section-count">0</span>
+          </div>
+          <div class="search-bar">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+            <input type="text" id="searchVisitor" placeholder="Search visitors..." oninput="handleVisitorSearch()">
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Visitor</th>
+                <th>Contact</th>
+                <th>Visit Info</th>
+                <th>Logs</th>
+                <th>Status</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="visitorList"></tbody>
+          </table>
+          <div class="pagination">
+            <div class="page-info" id="visitorPageInfo">Showing 0 records</div>
+            <div class="page-buttons">
+              <button class="page-btn" id="visitorPrevBtn" onclick="prevVisitorPage()">Previous</button>
+              <button class="page-btn" id="visitorNextBtn" onclick="nextVisitorPage()">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+
+  <div id="visitorModal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 680px;">
+      <div class="modal-header">
+        <div class="modal-title">Visitor details</div>
+        <button class="modal-close" onclick="closeVisitorModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div id="visitorModalBody" class="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="../../assets/js/api.js"></script>
+  <script src="../../assets/js/layout.js"></script>
+  <script src="../../assets/js/visitors.js"></script>
+  <script>
+    setupLayout();
+
+    const STATUS_COLORS = {
+      PENDING:     "amber",
+      APPROVED:    "green",
+      REJECTED:    "red",
+      CHECKED_IN:  "blue",
+      CHECKED_OUT: "indigo",
+    };
+
+    let allVisitors = [];
+    let filteredVisitors = [];
+    let currentPage = 1;
+    const pageSize = 10;
+    let visitorTableBound = false;
+
+    async function loadAllVisitors() {
+      const visitors = await api("/visitors/all");
+      allVisitors = Array.isArray(visitors) ? visitors : [];
+      filteredVisitors = [...allVisitors];
+      currentPage = 1;
+      const s = document.getElementById("searchVisitor");
+      if (s) s.value = "";
+      renderVisitors();
+      bindVisitorTableEvents();
+    }
+
+    function handleVisitorSearch() {
+      const q = document.getElementById("searchVisitor").value.toLowerCase();
+      filteredVisitors = allVisitors.filter(v => 
+        (v.fullName || "").toLowerCase().includes(q) ||
+        (v.phoneNumber || "").toLowerCase().includes(q) ||
+        (v.purpose || "").toLowerCase().includes(q) ||
+        (v.host && v.host.fullName && v.host.fullName.toLowerCase().includes(q)) ||
+        (v.department && v.department.name && v.department.name.toLowerCase().includes(q))
+      );
+      currentPage = 1;
+      renderVisitors();
+    }
+
+    function prevVisitorPage() {
+      if (currentPage > 1) { currentPage--; renderVisitors(); }
+    }
+    function nextVisitorPage() {
+      if (currentPage * pageSize < filteredVisitors.length) { currentPage++; renderVisitors(); }
+    }
+
+    function formatDateTime(value) {
+      if (!value) return "—";
+      return new Date(value).toLocaleString([], {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+      });
+    }
+
+    function openVisitorModal(visitor) {
+      const body = document.getElementById("visitorModalBody");
+      body.innerHTML = `
+        <div style="display:grid; gap:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+            <div>
+              <div style="font-size:20px; font-weight:700; color:var(--slate-800);">${visitor.fullName || "Unnamed visitor"}</div>
+              <div style="font-size:13px; color:var(--slate-500);">${visitor.phoneNumber || "No phone number"}</div>
+            </div>
+            ${visitorStatusBadge(visitor)}
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
+            <div class="card" style="padding:14px; border:1px solid var(--slate-200); border-radius:10px; background:var(--slate-50);">
+              <div style="font-size:12px; color:var(--slate-500); text-transform:uppercase; letter-spacing:0.06em;">Purpose</div>
+              <div style="margin-top:6px; font-weight:600; color:var(--slate-700);">${visitor.purpose || "Not provided"}</div>
+            </div>
+            <div class="card" style="padding:14px; border:1px solid var(--slate-200); border-radius:10px; background:var(--slate-50);">
+              <div style="font-size:12px; color:var(--slate-500); text-transform:uppercase; letter-spacing:0.06em;">Department</div>
+              <div style="margin-top:6px; font-weight:600; color:var(--slate-700);">${visitor.department ? visitor.department.name : "—"}</div>
+            </div>
+            <div class="card" style="padding:14px; border:1px solid var(--slate-200); border-radius:10px; background:var(--slate-50);">
+              <div style="font-size:12px; color:var(--slate-500); text-transform:uppercase; letter-spacing:0.06em;">Host</div>
+              <div style="margin-top:6px; font-weight:600; color:var(--slate-700);">${visitor.host ? visitor.host.fullName : "—"}</div>
+            </div>
+            <div class="card" style="padding:14px; border:1px solid var(--slate-200); border-radius:10px; background:var(--slate-50);">
+              <div style="font-size:12px; color:var(--slate-500); text-transform:uppercase; letter-spacing:0.06em;">Assigned Guard</div>
+              <div style="margin-top:6px; font-weight:600; color:var(--slate-700);">${visitor.recordedBy ? visitor.recordedBy.fullName : "—"}</div>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
+            <div class="card" style="padding:14px; border:1px solid var(--slate-200); border-radius:10px; background:var(--slate-50);">
+              <div style="font-size:12px; color:var(--slate-500); text-transform:uppercase; letter-spacing:0.06em;">Checked In</div>
+              <div style="margin-top:6px; font-weight:600; color:var(--slate-700);">${formatDateTime(visitor.checkInTime)}</div>
+            </div>
+            <div class="card" style="padding:14px; border:1px solid var(--slate-200); border-radius:10px; background:var(--slate-50);">
+              <div style="font-size:12px; color:var(--slate-500); text-transform:uppercase; letter-spacing:0.06em;">Checked Out</div>
+              <div style="margin-top:6px; font-weight:600; color:var(--slate-700);">${formatDateTime(visitor.checkOutTime)}</div>
+            </div>
+          </div>
+        </div>`;
+      document.getElementById("visitorModal").classList.add("active");
+    }
+
+    function closeVisitorModal() {
+      document.getElementById("visitorModal").classList.remove("active");
+    }
+
+    function bindVisitorTableEvents() {
+      if (visitorTableBound) return;
+      const tableBody = document.getElementById("visitorList");
+      if (!tableBody) return;
+
+      tableBody.addEventListener("click", handleVisitorTableClick);
+      visitorTableBound = true;
+    }
+
+    function handleVisitorTableClick(event) {
+      const button = event.target.closest("button[data-action]");
+      if (button) {
+        const action = button.dataset.action;
+        const visitorId = Number(button.dataset.visitorId);
+        const visitor = allVisitors.find(item => item.id === visitorId);
+        event.stopPropagation();
+
+        if (action === "view" && visitor) {
+          openVisitorModal(visitor);
+          return;
+        }
+
+        if (action === "delete") {
+          removeVisitor(visitorId);
+          return;
+        }
+      }
+
+      const row = event.target.closest("tr[data-visitor-id]");
+      if (!row) return;
+
+      const visitorId = Number(row.dataset.visitorId);
+      const visitor = allVisitors.find(item => item.id === visitorId);
+      if (visitor) {
+        openVisitorModal(visitor);
+      }
+    }
+
+    function renderVisitors() {
+      const el       = document.getElementById("visitorList");
+      const countEl  = document.getElementById("visitorCount");
+      if (countEl) countEl.innerText = filteredVisitors.length;
+
+      const total = filteredVisitors.length;
+      const startIdx = (currentPage - 1) * pageSize;
+      const list = filteredVisitors.slice(startIdx, startIdx + pageSize);
+
+      const pageInfo = document.getElementById("visitorPageInfo");
+      if (pageInfo) pageInfo.innerText = total === 0 ? "No records" : `Showing ${startIdx + 1} to ${Math.min(startIdx + pageSize, total)} of ${total}`;
+      const prevBtn = document.getElementById("visitorPrevBtn");
+      if (prevBtn) prevBtn.disabled = currentPage === 1;
+      const nextBtn = document.getElementById("visitorNextBtn");
+      if (nextBtn) nextBtn.disabled = currentPage * pageSize >= total;
+
+      if (!list.length) {
+        el.innerHTML = `<tr><td colspan="6"><div class="empty-state">
+          <div class="empty-state-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/>
+            </svg>
+          </div>
+          <h3>No visitors found</h3>
+          <p>Try adjusting your search query</p>
+        </div></td></tr>`;
+        return;
+      }
+
+      el.innerHTML = list.map(v => `
+        <tr data-visitor-id="${v.id}" style="cursor:pointer;">
+          <td>
+            <div class="user-cell">
+              <div class="table-icon ${STATUS_COLORS[v.status] || 'blue'}">${(v.fullName || "?").charAt(0).toUpperCase()}</div>
+              <div class="primary-text">${v.fullName}</div>
+            </div>
+          </td>
+          <td style="color:var(--slate-600); font-size:13px; line-height:1.5;">
+            ${v.phoneNumber ? `<div>📞 ${v.phoneNumber}</div>` : "—"}
+          </td>
+          <td style="color:var(--slate-600); font-size:13px; line-height:1.5;">
+            ${v.purpose ? `<div style="font-weight:500;color:var(--slate-700)">${v.purpose}</div>` : ""}
+            ${v.host ? `<div>Host: <strong>${v.host.fullName}</strong></div>` : ""}
+            ${v.department ? `<div>Dept: ${v.department.name}</div>` : ""}
+          </td>
+          <td style="color:var(--slate-600); font-size:12.5px; line-height:1.5;">
+            <div>In: <strong>${v.checkInTime ? new Date(v.checkInTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '—'}</strong></div>
+            <div>Out: <strong>${v.checkOutTime ? new Date(v.checkOutTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '—'}</strong></div>
+          </td>
+          <td>
+            ${visitorStatusBadge(v)}
+          </td>
+          <td>
+            <div class="actions-cell">
+              <button data-action="view" data-visitor-id="${v.id}"
+                class="btn btn-primary"
+                style="display:inline-flex;align-items:center;justify-content:center;padding:6px;border-radius:6px;"
+                title="View Details">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:16px;height:16px;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.75-6.75 9.75-6.75S21.75 12 21.75 12s-3.75 6.75-9.75 6.75S2.25 12 2.25 12zm9.75 3.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z"/>
+                </svg>
+              </button>
+              <button data-action="delete" data-visitor-id="${v.id}"
+                class="btn btn-danger"
+                style="display:inline-flex;align-items:center;justify-content:center;padding:6px;border-radius:6px;"
+                title="Delete Visitor">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:16px;height:16px;">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    async function removeVisitor(id) {
+      if (!confirm("Delete this visitor record permanently?")) return;
+      try {
+        await api("/visitors/" + id, "DELETE");
+        showToast("Visitor deleted successfully");
+        loadAllVisitors();
+      } catch (e) {
+        showToast("Failed to delete visitor", "error");
+      }
+    }
+
+    loadAllVisitors();
+  </script>
+</body>
+</html>

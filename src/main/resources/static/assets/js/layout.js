@@ -37,6 +37,7 @@ const IC = {
   register:    `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019.374 21c-2.331 0-4.512-.645-6.374-1.766z"/></svg>`,
   checkin:     `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0110.5 3h6a2.25 2.25 0 012.25 2.25v13.5A2.25 2.25 0 0116.5 21h-6a2.25 2.25 0 01-2.25-2.25V15M12 9l3 3m0 0l-3 3m3-3H2.25"/></svg>`,
   checkout:    `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/></svg>`,
+  profile:     `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>`,
 };
 
 function buildMenu() {
@@ -47,7 +48,8 @@ function buildMenu() {
     html += `<span class="sidebar-section-label">Admin</span>
       <a class="menu" href="/pages/admin/dashboard.html">${IC.dashboard} Dashboard</a>
       <a class="menu" href="/pages/admin/users.html">${IC.users} Users</a>
-      <a class="menu" href="/pages/admin/departments.html">${IC.departments} Departments</a>`;
+      <a class="menu" href="/pages/admin/departments.html">${IC.departments} Departments</a>
+      <a class="menu" href="/pages/admin/visitors.html">${IC.visitors} Visitors</a>`;
   }
 
   if (role === "HOST") {
@@ -60,8 +62,13 @@ function buildMenu() {
     html += `<span class="sidebar-section-label">Security</span>
       <a class="menu" href="/pages/security/register.html">${IC.register} Register Visitor</a>
       <a class="menu" href="/pages/security/checkin.html">${IC.checkin} Check In</a>
-      <a class="menu" href="/pages/security/checkout.html">${IC.checkout} Check Out</a>`;
+      <a class="menu" href="/pages/security/checkout.html">${IC.checkout} Check Out</a>
+      <a class="menu" href="/pages/security/today.html">${IC.visitors} Today's Visitors</a>`;
   }
+
+  // My Profile — available to every role
+  html += `<span class="sidebar-section-label" style="margin-top:8px;">Account</span>
+    <a class="menu" href="/pages/profile.html">${IC.profile} My Profile</a>`;
 
   document.getElementById("menu").innerHTML = html;
 }

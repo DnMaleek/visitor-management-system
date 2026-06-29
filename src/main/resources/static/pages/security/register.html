@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register Visitor — VisitorPass</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+  <div id="sidebar"></div>
+
+  <div class="main-wrap">
+    <div id="navbar"></div>
+
+    <div class="page-body">
+      <div class="page-header">
+        <h1>Register Visitor</h1>
+        <p>Record a new visitor's details at the gate</p>
+      </div>
+
+      <div style="max-width:520px;">
+        <div class="card">
+          <div class="card-title">Visitor details</div>
+          <div id="visitorForm">
+            <div class="form-group">
+              <label class="form-label">Full name</label>
+              <input id="fullName" class="input" placeholder="e.g. Alice Mwangi">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Phone number</label>
+              <input id="phone" class="input" placeholder="e.g. +254 700 000 000">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Department ID</label>
+              <input id="department" class="input" placeholder="Department ID">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Host ID</label>
+              <input id="host" class="input" placeholder="Host ID">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Purpose of visit</label>
+              <textarea id="purpose" class="input" placeholder="Brief reason for the visit"></textarea>
+            </div>
+            <button type="button" onclick="registerVisitor()" class="btn btn-primary" style="width:100%;padding:12px;font-size:14px;">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:15px;height:15px;"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM3 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 019.374 21c-2.331 0-4.512-.645-6.374-1.766z"/></svg>
+              Register Visitor
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../../assets/js/api.js"></script>
+  <script src="../../assets/js/layout.js"></script>
+  <script src="../../assets/js/visitors.js"></script>
+  <script>setupLayout();</script>
+</body>
+</html>

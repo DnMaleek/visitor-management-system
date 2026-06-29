@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Check Out — VisitorPass</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/assets/css/style.css">
+</head>
+<body>
+  <div id="sidebar"></div>
+
+  <div class="main-wrap">
+    <div id="navbar"></div>
+
+    <div class="page-body">
+      <div class="page-header">
+        <h1>Check Out</h1>
+        <p>Record visitor departures from the premises</p>
+      </div>
+
+      <div class="section-header">
+        <span class="section-title">Currently inside</span>
+        <span id="checkoutCount" class="section-count">0</span>
+      </div>
+
+      <div id="list" class="space-y"></div>
+    </div>
+  </div>
+
+  <script src="../../assets/js/api.js"></script>
+  <script src="../../assets/js/layout.js"></script>
+  <script src="../../assets/js/visitors.js"></script>
+  <script>
+    setupLayout();
+    loadCheckOutVisitors();
+  </script>
+</body>
+</html>

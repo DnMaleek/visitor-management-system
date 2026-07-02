@@ -264,4 +264,38 @@ public class VisitorService {
         visitorRepo.delete(visitor);
         return new ApiResponse(true, "Visitor deleted successfully", null);
     }
+
+    // ── Guard-scoped methods (only visitors the guard registered) ──
+
+    public ApiResponse getMyUncheckedInVisitors(String username) {
+        User guard = userRepo.findByName(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Guard not found"));
+        return new ApiResponse(
+                true,
+                "My unchecked-in visitors fetched",
+                visitorRepo.findByRecordedByAndCheckInTimeIsNull(guard)
+        );
+    }
+
+    public ApiResponse getMyCheckedInVisitors(String username) {
+        User guard = userRepo.findByName(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Guard not found"));
+        return new ApiResponse(
+                true,
+                "My checked-in visitors fetched",
+                visitorRepo.findByRecordedByAndIsCheckedInTrueAndIsCheckedOutFalse(guard)
+        );
+    }
+
+    public ApiResponse getMyTodayVisitors(String username) {
+        User guard = userRepo.findByName(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Guard not found"));
+        LocalDateTime start = LocalDate.now().atStartOfDay();
+        LocalDateTime end   = LocalDate.now().atTime(23, 59, 59);
+        return new ApiResponse(
+                true,
+                "My today's visitors fetched",
+                visitorRepo.findByRecordedByAndCreatedAtBetween(guard, start, end)
+        );
+    }
 }

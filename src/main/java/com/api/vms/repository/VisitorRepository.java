@@ -31,6 +31,13 @@ public interface VisitorRepository extends JpaRepository<Visitor, Long> {
 
     List<Visitor> findByIsCheckedInTrueAndIsCheckedOutFalse();
 
+    // Guard-scoped queries (filtered by the guard who recorded the visitor)
+    List<Visitor> findByRecordedByAndCheckInTimeIsNull(User recordedBy);
+
+    List<Visitor> findByRecordedByAndIsCheckedInTrueAndIsCheckedOutFalse(User recordedBy);
+
+    List<Visitor> findByRecordedByAndCreatedAtBetween(User recordedBy, LocalDateTime start, LocalDateTime end);
+
     List<Visitor> findByHost(User host);
     List<Visitor> findByRecordedBy(User recordedBy);
     

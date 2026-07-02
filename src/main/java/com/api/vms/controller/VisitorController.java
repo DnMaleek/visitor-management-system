@@ -107,6 +107,24 @@ public class VisitorController {
         return service.getTodaysVisitors();
     }
 
+    @GetMapping("/my-unchecked-in")
+    @PreAuthorize("hasRole('SECURITY_GUARD')")
+    public ApiResponse getMyUncheckedIn(Authentication authentication) {
+        return service.getMyUncheckedInVisitors(authentication.getName());
+    }
+
+    @GetMapping("/my-checked-in")
+    @PreAuthorize("hasRole('SECURITY_GUARD')")
+    public ApiResponse getMyCheckedIn(Authentication authentication) {
+        return service.getMyCheckedInVisitors(authentication.getName());
+    }
+
+    @GetMapping("/my-today")
+    @PreAuthorize("hasRole('SECURITY_GUARD')")
+    public ApiResponse getMyToday(Authentication authentication) {
+        return service.getMyTodayVisitors(authentication.getName());
+    }
+
     @GetMapping
     public ApiResponse getVisitors(
 

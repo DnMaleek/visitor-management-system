@@ -142,7 +142,7 @@ async function loadPendingVisitors() {
 
 // ── Check-in list (SECURITY) ──────────────────────────────────
 async function loadCheckInVisitors() {
-  const visitors = await api("/visitors/unchecked-in");
+  const visitors = await api("/visitors/my-unchecked-in");
   const rawList = Array.isArray(visitors) ? visitors : [];
   // Rejected visitors only show in Today's Visitors, not here
   const list = rawList.filter(v => v.status !== "REJECTED");
@@ -151,7 +151,7 @@ async function loadCheckInVisitors() {
   if (countEl) countEl.innerText = list.length;
 
   if (!list.length) {
-    el.innerHTML = emptyState(PERSON_ICON, "No visitors to check in", "Unchecked-in visitors will appear here");
+    el.innerHTML = emptyState(PERSON_ICON, "No visitors to check in", "Unchecked-in visitors you registered will appear here");
     return;
   }
 
@@ -178,7 +178,7 @@ async function loadCheckInVisitors() {
 
 // ── Check-out list (SECURITY) ─────────────────────────────────
 async function loadCheckOutVisitors() {
-  const visitors = await api("/visitors/checked-in");
+  const visitors = await api("/visitors/my-checked-in");
   const rawList = Array.isArray(visitors) ? visitors : [];
   // Only APPROVED visitors can be checked out — skip PENDING ones
   const list = rawList.filter(v => v.status !== "PENDING");
@@ -187,7 +187,7 @@ async function loadCheckOutVisitors() {
   if (countEl) countEl.innerText = list.length;
 
   if (!list.length) {
-    el.innerHTML = emptyState(PERSON_ICON, "No visitors inside", "Checked-in visitors will appear here");
+    el.innerHTML = emptyState(PERSON_ICON, "No visitors inside", "Visitors you checked in will appear here");
     return;
   }
 
@@ -245,14 +245,14 @@ async function loadHostVisitors() {
 
 // ── Today's visitors (SECURITY) ───────────────────────────────
 async function loadTodayVisitors() {
-  const visitors = await api("/visitors/today");
+  const visitors = await api("/visitors/my-today");
   const list = Array.isArray(visitors) ? visitors : [];
   const el = document.getElementById("list");
   const countEl = document.getElementById("todayCount");
   if (countEl) countEl.innerText = list.length;
 
   if (!list.length) {
-    el.innerHTML = emptyState(PERSON_ICON, "No visitors today", "No visitors have been recorded yet today");
+    el.innerHTML = emptyState(PERSON_ICON, "No visitors today", "No visitors you registered have been recorded today");
     return;
   }
 

@@ -118,6 +118,10 @@ public class VisitorService {
         Visitor visitor = visitorRepo.findById(visitorId)
                 .orElseThrow(() -> new ResourceNotFoundException("Visitor not found"));
 
+        if (visitor.getStatus() == VisitorStatus.PENDING) {
+            throw new ResourceNotFoundException("Cannot check out a visitor with PENDING status. The host must approve first.");
+        }
+
         if (!visitor.isCheckedIn() || visitor.isCheckedOut()) {
             throw new ResourceNotFoundException("Visitor is not checked in or already checked out");
         }
@@ -188,6 +192,16 @@ public class VisitorService {
                 true,
                 "My visitors fetched successfully",
                 visitorRepo.findByHostId(host.getId())
+        );
+    }
+
+    public ApiResponse getMyPendingVisitors(String username) {
+        User host = userRepo.findByName(username)
+                .orElseThrow(() -> new ResourceNotFoundException("Host not found"));
+        return new ApiResponse(
+                true,
+                "My pending visitors fetched successfully",
+                visitorRepo.findByHostIdAndStatus(host.getId(), VisitorStatus.PENDING)
         );
     }
 

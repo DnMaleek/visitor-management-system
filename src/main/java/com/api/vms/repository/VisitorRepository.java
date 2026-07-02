@@ -14,6 +14,8 @@ public interface VisitorRepository extends JpaRepository<Visitor, Long> {
 
     List<Visitor> findByStatus(VisitorStatus status);
 
+    List<Visitor> findByHostIdAndStatus(Long hostId, VisitorStatus status);
+
     List<Visitor> findByHostId(Long hostId);
     long countByStatus(VisitorStatus status);
     

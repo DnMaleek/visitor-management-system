@@ -61,6 +61,12 @@ public class VisitorController {
         return service.getPendingVisitors();
     }
 
+    @GetMapping("/my-pending")
+    @PreAuthorize("hasRole('HOST')")
+    public ApiResponse getMyPending(Authentication authentication) {
+        return service.getMyPendingVisitors(authentication.getName());
+    }
+
     @GetMapping("/host/{hostId}")
     @PreAuthorize("hasAnyRole('HOST','ADMIN')")
     public ApiResponse getHostVisitors(

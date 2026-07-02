@@ -104,7 +104,7 @@ async function checkOut(id) {
 
 // ── Pending visitors (HOST) ───────────────────────────────────
 async function loadPendingVisitors() {
-  const visitors = await api("/visitors/pending");
+  const visitors = await api("/visitors/my-pending");
   const list = Array.isArray(visitors) ? visitors : [];
   const el = document.getElementById("visitorList");
   const countEl = document.getElementById("pendingCount");
@@ -179,7 +179,9 @@ async function loadCheckInVisitors() {
 // ── Check-out list (SECURITY) ─────────────────────────────────
 async function loadCheckOutVisitors() {
   const visitors = await api("/visitors/checked-in");
-  const list = Array.isArray(visitors) ? visitors : [];
+  const rawList = Array.isArray(visitors) ? visitors : [];
+  // Only APPROVED visitors can be checked out — skip PENDING ones
+  const list = rawList.filter(v => v.status !== "PENDING");
   const el = document.getElementById("list");
   const countEl = document.getElementById("checkoutCount");
   if (countEl) countEl.innerText = list.length;

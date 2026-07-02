@@ -67,7 +67,7 @@ function renderTable() {
   if (nextBtn) nextBtn.disabled = currentPage * pageSize >= total;
 
   if (!list.length) {
-    el.innerHTML = `<tr><td colspan="5"><div class="empty-state">
+    el.innerHTML = `<tr><td colspan="6"><div class="empty-state">
       <div class="empty-state-icon">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>
       </div>
@@ -85,6 +85,7 @@ function renderTable() {
           <div class="primary-text">${u.fullName}</div>
         </div>
       </td>
+      <td style="color:var(--slate-600); font-size:13px;">${u.department ? u.department.name : "—"}</td>
       <td style="color:var(--slate-600); font-size:13px;">${u.name}</td>
       <td style="color:var(--slate-600); font-size:13px;">${u.email || "—"}</td>
       <td>
@@ -103,11 +104,25 @@ function renderTable() {
   `).join("");
 }
 
+async function loadDepartmentOptions() {
+  const sel = document.getElementById("department");
+  if (!sel) return;
+  try {
+    const depts = await api("/admin/departments");
+    const list = Array.isArray(depts) ? depts : [];
+    sel.innerHTML = '<option value="">No department</option>' +
+      list.map(d => `<option value="${d.id}">${d.name}</option>`).join("");
+  } catch (e) {
+    sel.innerHTML = '<option value="">Failed to load departments</option>';
+  }
+}
+
 async function createUser() {
-  const name     = document.getElementById("uname").value.trim();
-  const fullName = document.getElementById("fullname").value.trim();
-  const email    = document.getElementById("email").value.trim();
-  const role     = document.getElementById("role").value;
+  const name         = document.getElementById("uname").value.trim();
+  const fullName     = document.getElementById("fullname").value.trim();
+  const email        = document.getElementById("email").value.trim();
+  const role         = document.getElementById("role").value;
+  const departmentId = document.getElementById("department").value || null;
 
   if (!name || !fullName) {
     showToast("Username and full name are required", "error");
@@ -117,12 +132,14 @@ async function createUser() {
   // The password field is omitted, the backend will auto-assign the default password "123456"
   await api("/admin/users", "POST", {
     name, fullName, email, role,
+    departmentId: departmentId ? Number(departmentId) : null,
   });
 
   showToast("User created successfully");
   document.getElementById("uname").value     = "";
   document.getElementById("fullname").value  = "";
   document.getElementById("email").value     = "";
+  document.getElementById("department").value = "";
   closeUserModal();
   loadUsers();
 }
@@ -143,6 +160,7 @@ async function deleteUser(id) {
 
 function openUserModal() {
   document.getElementById("userModal").classList.add("active");
+  loadDepartmentOptions();
 }
 
 function closeUserModal() {

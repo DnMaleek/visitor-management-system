@@ -1,119 +1,421 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VisitorPass</title>
-<style>
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    background: #f7f7f8;
-    color: #1a1a1a;
-  }
-  nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px 40px;
-    background: #fff;
-    border-bottom: 1px solid #eaeaea;
-  }
-  .logo { font-size: 20px; font-weight: 700; }
-  .login-btn {
-    background: #2563eb;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 6px;
-    font-size: 14px;
-    cursor: pointer;
-  }
-  .login-btn:hover { background: #1d4ed8; }
-  .hero {
-    max-width: 700px;
-    margin: 0 auto;
-    text-align: center;
-    padding: 100px 20px 80px;
-  }
-  .hero h1 {
-    font-size: 40px;
-    margin: 0 0 16px;
-  }
-  .hero p {
-    font-size: 17px;
-    color: #555;
-    margin: 0 0 32px;
-  }
-  .cta-btn {
-    background: #2563eb;
-    color: #fff;
-    border: none;
-    padding: 14px 28px;
-    border-radius: 6px;
-    font-size: 16px;
-    cursor: pointer;
-  }
-  .cta-btn:hover { background: #1d4ed8; }
-  .features {
-    max-width: 800px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-    padding: 0 20px 80px;
-  }
-  .feature {
-    background: #fff;
-    border: 1px solid #eaeaea;
-    border-radius: 8px;
-    padding: 24px;
-    text-align: center;
-  }
-  .feature h3 { margin: 0 0 8px; font-size: 16px; }
-  .feature p { margin: 0; font-size: 14px; color: #666; }
-  footer {
-    text-align: center;
-    padding: 24px;
-    font-size: 13px;
-    color: #999;
-  }
-  @media (max-width: 600px) {
-    .features { grid-template-columns: 1fr; }
-    .hero h1 { font-size: 30px; }
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VisitorPass — Visitor Management System</title>
+  <meta name="description" content="VisitorPass — Check-in guests, monitor visitors, and notify hosts from one simple system.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:      #0a0f1e;
+      --navy-mid:  #111827;
+      --navy-soft: #1f2937;
+      --blue:      #3b82f6;
+      --blue-dark: #1d4ed8;
+      --blue-glow: rgba(59,130,246,0.15);
+      --indigo:    #6366f1;
+      --emerald:   #10b981;
+      --amber:     #f59e0b;
+      --slate-200: #e2e8f0;
+      --slate-400: #94a3b8;
+      --slate-500: #64748b;
+      --white:     #ffffff;
+      --transition: 0.18s ease;
+    }
+
+    html { font-size: 16px; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Glow blobs (same as login page) ── */
+    .bg-blobs {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.2;
+    }
+    .blob-1 { width: 500px; height: 500px; background: var(--blue);   top: -160px; left: -160px; }
+    .blob-2 { width: 420px; height: 420px; background: var(--indigo); bottom: -120px; right: -120px; }
+    .blob-3 { width: 280px; height: 280px; background: var(--emerald); top: 40%; left: 60%; opacity: 0.1; }
+
+    /* ── Nav ── */
+    nav {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 22px 48px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      backdrop-filter: blur(8px);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-brand-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--blue), var(--indigo));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 0 16px rgba(99,102,241,0.4);
+    }
+
+    .nav-brand-icon svg { width: 18px; height: 18px; color: #fff; }
+
+    .nav-brand-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.02em;
+    }
+
+    .nav-login-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.08);
+      color: var(--white);
+      border: 1px solid rgba(255,255,255,0.12);
+      padding: 9px 20px;
+      border-radius: 8px;
+      font-size: 13.5px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background var(--transition), border-color var(--transition), box-shadow var(--transition);
+      letter-spacing: -0.01em;
+      text-decoration: none;
+    }
+
+    .nav-login-btn:hover {
+      background: rgba(255,255,255,0.14);
+      border-color: rgba(255,255,255,0.22);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+      margin: 0 auto;
+      text-align: center;
+      padding: 110px 24px 80px;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--blue-glow);
+      border: 1px solid rgba(59,130,246,0.25);
+      color: #60a5fa;
+      font-size: 11.5px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 99px;
+      margin-bottom: 28px;
+    }
+
+    .hero-eyebrow-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--blue);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.6; transform: scale(0.85); }
+    }
+
+    .hero h1 {
+      font-size: 52px;
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.04em;
+      color: var(--white);
+      margin-bottom: 20px;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--blue) 0%, var(--indigo) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 17px;
+      line-height: 1.65;
+      color: var(--slate-400);
+      margin-bottom: 40px;
+      max-width: 540px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .btn-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--blue), var(--indigo));
+      color: var(--white);
+      border: none;
+      padding: 14px 28px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: box-shadow var(--transition), transform var(--transition);
+      letter-spacing: -0.02em;
+      box-shadow: 0 4px 20px rgba(99,102,241,0.4);
+      text-decoration: none;
+    }
+
+    .btn-cta:hover {
+      box-shadow: 0 8px 28px rgba(99,102,241,0.55);
+      transform: translateY(-1px);
+    }
+
+    .btn-cta:active { transform: scale(0.98); }
+
+    .btn-cta svg { width: 16px; height: 16px; }
+
+    /* ── Features grid ── */
+    .features-section {
+      position: relative;
+      z-index: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px 100px;
+    }
+
+    .features-label {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(148,163,184,0.5);
+      margin-bottom: 32px;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 28px 24px;
+      transition: background var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition);
+    }
+
+    .feature-card:hover {
+      background: rgba(255,255,255,0.07);
+      border-color: rgba(255,255,255,0.14);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.25);
+    }
+
+    .feature-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 18px;
+    }
+
+    .feature-icon svg { width: 22px; height: 22px; }
+
+    .feature-icon.blue   { background: rgba(59,130,246,0.15);  color: #60a5fa; }
+    .feature-icon.indigo { background: rgba(99,102,241,0.15);  color: #a5b4fc; }
+    .feature-icon.green  { background: rgba(16,185,129,0.15);  color: #6ee7b7; }
+
+    .feature-card h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: var(--slate-400);
+    }
+
+    /* ── Divider line ── */
+    .divider {
+      position: relative;
+      z-index: 1;
+      height: 1px;
+      background: rgba(255,255,255,0.06);
+      max-width: 900px;
+      margin: 0 auto 0;
+    }
+
+    /* ── Footer ── */
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 28px 24px;
+      font-size: 12.5px;
+      color: rgba(148,163,184,0.45);
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    footer span {
+      color: rgba(148,163,184,0.7);
+      font-weight: 500;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 720px) {
+      nav { padding: 18px 24px; }
+      .hero { padding: 80px 20px 60px; }
+      .hero h1 { font-size: 36px; }
+      .hero p { font-size: 15px; }
+      .features-grid { grid-template-columns: 1fr; }
+      .features-section { padding: 0 20px 72px; }
+    }
+
+    @media (max-width: 480px) {
+      .hero h1 { font-size: 30px; }
+      .hero-actions { flex-direction: column; }
+      .btn-cta { width: 100%; justify-content: center; }
+    }
+  </style>
 </head>
 <body>
 
-<nav>
-  <div class="logo">VisitorPass</div>
-  <button class="login-btn" onclick="location.href='login.html'">Log in</button>
-</nav>
-
-<div class="hero">
-  <h1>Manage your visitors, effortlessly.</h1>
-  <p>Check-in guests, easy monitoring of visitors, and notify hosts — all from one simple system.</p>
-  <button class="cta-btn" onclick="location.href='login.html'">Get started</button>
-</div>
-
-<div class="features">
-  <div class="feature">
-    <h3>Quick check-in</h3>
-    <p>Visitors sign in seconds.</p>
+  <!-- Background glow blobs -->
+  <div class="bg-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
   </div>
-  <div class="feature">
-    <h3>Easy Monitoring of Visitors</h3>
-    <p>You can See who has check-in by simple click.</p>
-  </div>
-  <div class="feature">
-    <h3>Host notifications</h3>
-    <p>Hosts get notified the moment their guest arrives.</p>
-  </div>
-</div>
 
-<footer>© 2026 VisitorPass made with DN</footer>
+  <!-- Navbar -->
+  <nav>
+    <div class="nav-brand">
+      <div class="nav-brand-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/>
+        </svg>
+      </div>
+      <span class="nav-brand-name">VisitorPass</span>
+    </div>
+
+    <a class="nav-login-btn" href="login.html">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:14px;height:14px;">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"/>
+      </svg>
+      Log in
+    </a>
+  </nav>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span class="hero-eyebrow-dot"></span>
+      Visitor Management System
+    </div>
+
+    <h1>Manage your visitors,<br><span>effortlessly.</span></h1>
+
+    <p>Check-in guests, monitor visitors in real time, and notify hosts — all from one streamlined system built for security teams.</p>
+
+    <div class="hero-actions">
+      <a class="btn-cta" href="login.html">
+        Get started
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="features-section">
+    <p class="features-label">What's inside</p>
+    <div class="features-grid">
+
+      <div class="feature-card">
+        <div class="feature-icon blue">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 9V5.25A2.25 2.25 0 0110.5 3h6a2.25 2.25 0 012.25 2.25v13.5A2.25 2.25 0 0116.5 21h-6a2.25 2.25 0 01-2.25-2.25V15M12 9l3 3m0 0l-3 3m3-3H2.25"/>
+          </svg>
+        </div>
+        <h3>Quick Check-in</h3>
+        <p>Security guards can register and check in visitors in seconds with a simple, guided flow.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon indigo">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/>
+          </svg>
+        </div>
+        <h3>Easy Monitoring</h3>
+        <p>See who is currently inside, who has checked out, and every visitor recorded today — at a glance.</p>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon green">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
+          </svg>
+        </div>
+        <h3>Host Notifications</h3>
+        <p>Hosts receive visit requests instantly and can approve or reject them before a guest is checked in.</p>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <footer>
+    &copy; 2026 <span>VisitorPass</span> &mdash; made with DN
+  </footer>
 
 </body>
 </html>

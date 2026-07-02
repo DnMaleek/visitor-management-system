@@ -20,12 +20,26 @@
         <p>Review and approve or reject incoming visit requests</p>
       </div>
 
-      <div class="section-header">
-        <span class="section-title">Awaiting your response</span>
-        <span id="pendingCount" class="section-count">0</span>
+      <div class="table-controls">
+        <div class="section-header" style="margin:0; border:none; padding:0;">
+          <span class="section-title">Awaiting your response</span>
+          <span id="pendingCount" class="section-count">0</span>
+        </div>
+        <div class="search-bar">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+          <input type="text" id="searchHostVisitors" placeholder="Search visitors..." oninput="handleHostSearch()">
+        </div>
       </div>
 
       <div id="visitorList" class="space-y"></div>
+
+      <div class="pagination" style="margin-top: 20px; border-radius: var(--radius-md); border: 1px solid var(--slate-200);">
+        <div class="page-info" id="hostPageInfo">Showing 0 records</div>
+        <div class="page-buttons">
+          <button class="page-btn" id="hostPrevBtn" onclick="prevHostPage()">Previous</button>
+          <button class="page-btn" id="hostNextBtn" onclick="nextHostPage()">Next</button>
+        </div>
+      </div>
     </div>
   </div>
 

@@ -12,36 +12,36 @@ import java.util.List;
 
 public interface VisitorRepository extends JpaRepository<Visitor, Long> {
 
-    List<Visitor> findByStatus(VisitorStatus status);
+    List<Visitor> findByStatusOrderByIdDesc(VisitorStatus status);
 
-    List<Visitor> findByHostIdAndStatus(Long hostId, VisitorStatus status);
+    List<Visitor> findByHostIdAndStatusOrderByIdDesc(Long hostId, VisitorStatus status);
 
-    List<Visitor> findByHostId(Long hostId);
+    List<Visitor> findByHostIdOrderByIdDesc(Long hostId);
     long countByStatus(VisitorStatus status);
     
     long countByIsCheckedInTrueAndIsCheckedOutFalse();
     long countByIsCheckedOutTrue();
 
-    List<Visitor> findByCreatedAtBetween(
+    List<Visitor> findByCreatedAtBetweenOrderByIdDesc(
             LocalDateTime start,
             LocalDateTime end
     );
 
-    List<Visitor> findByCheckInTimeIsNull();
+    List<Visitor> findByCheckInTimeIsNullOrderByIdDesc();
 
-    List<Visitor> findByIsCheckedInTrueAndIsCheckedOutFalse();
+    List<Visitor> findByIsCheckedInTrueAndIsCheckedOutFalseOrderByIdDesc();
 
     // Guard-scoped queries (filtered by the guard who recorded the visitor)
-    List<Visitor> findByRecordedByAndCheckInTimeIsNull(User recordedBy);
+    List<Visitor> findByRecordedByAndCheckInTimeIsNullOrderByIdDesc(User recordedBy);
 
-    List<Visitor> findByRecordedByAndIsCheckedInTrueAndIsCheckedOutFalse(User recordedBy);
+    List<Visitor> findByRecordedByAndIsCheckedInTrueAndIsCheckedOutFalseOrderByIdDesc(User recordedBy);
 
-    List<Visitor> findByRecordedByAndCreatedAtBetween(User recordedBy, LocalDateTime start, LocalDateTime end);
+    List<Visitor> findByRecordedByAndCreatedAtBetweenOrderByIdDesc(User recordedBy, LocalDateTime start, LocalDateTime end);
 
-    List<Visitor> findByHost(User host);
-    List<Visitor> findByRecordedBy(User recordedBy);
+    List<Visitor> findByHostOrderByIdDesc(User host);
+    List<Visitor> findByRecordedByOrderByIdDesc(User recordedBy);
     
-    List<Visitor> findByDepartment(com.api.vms.entity.Department department);
+    List<Visitor> findByDepartmentOrderByIdDesc(com.api.vms.entity.Department department);
 
     Page<Visitor> findAll(Pageable pageable);
 

@@ -9,6 +9,7 @@ import com.api.vms.exception.ResourceNotFoundException;
 import com.api.vms.repository.UserRepository;
 import com.api.vms.repository.VisitorRepository;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -143,7 +144,7 @@ public class VisitorService {
         return new ApiResponse(
                 true,
                 "Visitors fetched successfully",
-                visitorRepo.findAll()
+                visitorRepo.findAll(Sort.by(Sort.Direction.DESC, "id"))
         );
     }
 
@@ -152,7 +153,7 @@ public class VisitorService {
         return new ApiResponse(
                 true,
                 "Pending visitors",
-                visitorRepo.findByStatus(
+                visitorRepo.findByStatusOrderByIdDesc(
                         VisitorStatus.PENDING
                 )
         );
@@ -162,7 +163,7 @@ public class VisitorService {
         return new ApiResponse(
                 true,
                 "Unchecked-in visitors fetched",
-                visitorRepo.findByCheckInTimeIsNull()
+                visitorRepo.findByCheckInTimeIsNullOrderByIdDesc()
         );
     }
 
@@ -170,7 +171,7 @@ public class VisitorService {
         return new ApiResponse(
                 true,
                 "Checked-in visitors",
-                visitorRepo.findByIsCheckedInTrueAndIsCheckedOutFalse()
+                visitorRepo.findByIsCheckedInTrueAndIsCheckedOutFalseOrderByIdDesc()
         );
     }
 
@@ -181,7 +182,7 @@ public class VisitorService {
         return new ApiResponse(
                 true,
                 "Visitors fetched",
-                visitorRepo.findByHostId(hostId)
+                visitorRepo.findByHostIdOrderByIdDesc(hostId)
         );
     }
 
@@ -191,7 +192,7 @@ public class VisitorService {
         return new ApiResponse(
                 true,
                 "My visitors fetched successfully",
-                visitorRepo.findByHostId(host.getId())
+                visitorRepo.findByHostIdOrderByIdDesc(host.getId())
         );
     }
 
@@ -201,7 +202,7 @@ public class VisitorService {
         return new ApiResponse(
                 true,
                 "My pending visitors fetched successfully",
-                visitorRepo.findByHostIdAndStatus(host.getId(), VisitorStatus.PENDING)
+                visitorRepo.findByHostIdAndStatusOrderByIdDesc(host.getId(), VisitorStatus.PENDING)
         );
     }
 
@@ -210,7 +211,7 @@ public class VisitorService {
         return new ApiResponse(
                 true,
                 "Visitors fetched successfully",
-                visitorRepo.findByStatus(
+                visitorRepo.findByStatusOrderByIdDesc(
                         VisitorStatus.valueOf(
                                 status.toUpperCase()
                         )
@@ -229,7 +230,7 @@ public class VisitorService {
         return new ApiResponse(
                 true,
                 "Today's visitors",
-                visitorRepo.findByCreatedAtBetween(
+                visitorRepo.findByCreatedAtBetweenOrderByIdDesc(
                         start,
                         end
                 )
@@ -245,7 +246,7 @@ public class VisitorService {
                 true,
                 "Visitors fetched",
                 visitorRepo.findAll(
-                        PageRequest.of(page, size)
+                        PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "id"))
                 )
         );
     }
@@ -254,7 +255,7 @@ public class VisitorService {
         return new ApiResponse(
                 true,
                 "All visitors fetched",
-                visitorRepo.findAll()
+                visitorRepo.findAll(Sort.by(Sort.Direction.DESC, "id"))
         );
     }
 
@@ -273,7 +274,7 @@ public class VisitorService {
         return new ApiResponse(
                 true,
                 "My unchecked-in visitors fetched",
-                visitorRepo.findByRecordedByAndCheckInTimeIsNull(guard)
+                visitorRepo.findByRecordedByAndCheckInTimeIsNullOrderByIdDesc(guard)
         );
     }
 
@@ -283,7 +284,7 @@ public class VisitorService {
         return new ApiResponse(
                 true,
                 "My checked-in visitors fetched",
-                visitorRepo.findByRecordedByAndIsCheckedInTrueAndIsCheckedOutFalse(guard)
+                visitorRepo.findByRecordedByAndIsCheckedInTrueAndIsCheckedOutFalseOrderByIdDesc(guard)
         );
     }
 
@@ -295,7 +296,7 @@ public class VisitorService {
         return new ApiResponse(
                 true,
                 "My today's visitors fetched",
-                visitorRepo.findByRecordedByAndCreatedAtBetween(guard, start, end)
+                visitorRepo.findByRecordedByAndCreatedAtBetweenOrderByIdDesc(guard, start, end)
         );
     }
 }

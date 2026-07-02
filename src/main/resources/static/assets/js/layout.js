@@ -75,7 +75,7 @@ function buildMenu() {
 
 function logout() {
   localStorage.clear();
-  location = "../../index.html";
+  location = "../../login.html";
 }
 
 // ── Toast helper (used by all pages) ──────────────────────────

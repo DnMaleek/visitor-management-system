@@ -2,7 +2,7 @@ function requireAuth() {
     const token = localStorage.getItem("token");
 
     if(!token) {
-        location = "../../index.html"
+        location = "../../login.html"
     }
 }
 
@@ -12,6 +12,6 @@ function requireRole () {
     if(!role) {
         alert("Access denied")
 
-        location = "../../index.html"
+        location = "../../login.html"
     }
 }

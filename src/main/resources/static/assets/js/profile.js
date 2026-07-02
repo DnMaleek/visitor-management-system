@@ -92,7 +92,7 @@ async function saveProfileInfo() {
         showToast("Redirecting to login…", "success");
         setTimeout(() => {
           localStorage.clear();
-          location.href = "/index.html";
+          location.href = "/login.html";
         }, 1500);
       }, 800);
     } else {
